@@ -101,6 +101,11 @@ public class KomodoAutoConfiguration {
 
         if ( !started ) {
             throw new RuntimeException(Messages.getString( KOMODO_ENGINE_STARTUP_TIMEOUT, 1, TimeUnit.MINUTES));
+        } else {
+        	// monitor to track connections from the syndesis
+        	SyndesisConnectionSynchronizer sync = new SyndesisConnectionSynchronizer(kengine);
+        	SyndesisConnectionMonitor scm = new SyndesisConnectionMonitor(sync);
+        	scm.start();
         }
         return kengine;
     }
