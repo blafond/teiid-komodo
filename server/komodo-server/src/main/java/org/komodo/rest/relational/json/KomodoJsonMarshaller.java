@@ -21,6 +21,9 @@ import org.komodo.rest.KRestEntity;
 import org.komodo.rest.RestBasicEntity;
 import org.komodo.rest.RestProperty;
 import org.komodo.rest.json.RestPropertySerializer;
+import org.komodo.rest.relational.connection.RestSourceColumn;
+import org.komodo.rest.relational.connection.RestSourceSchema;
+import org.komodo.rest.relational.connection.RestSourceTable;
 import org.komodo.rest.relational.dataservice.RestDataservice;
 import org.komodo.rest.relational.request.KomodoConnectionAttributes;
 import org.komodo.rest.relational.request.KomodoQueryAttribute;
@@ -33,6 +36,7 @@ import org.komodo.rest.relational.response.vieweditorstate.RestSqlComposition;
 import org.komodo.rest.relational.response.vieweditorstate.RestSqlProjectedColumn;
 import org.komodo.rest.relational.response.vieweditorstate.RestViewDefinition;
 import org.komodo.rest.relational.response.vieweditorstate.RestViewEditorState;
+import org.komodo.rest.relational.response.vieweditorstate.RestViewSourceSchema;
 import org.komodo.rest.relational.response.virtualization.RestRouteStatus;
 import org.komodo.rest.relational.response.virtualization.RestVirtualizationStatus;
 import org.komodo.utils.ArgCheck;
@@ -71,7 +75,11 @@ public final class KomodoJsonMarshaller {
                                                   .registerTypeAdapter(RestSqlComposition.class, new SqlCompositionSerializer())
                                                   .registerTypeAdapter(RestSqlProjectedColumn.class, new SqlProjectedColumnSerializer())
                                                   .registerTypeAdapter(RestVirtualizationStatus.class, new VirtualizationStatusSerializer())
-                                                  .registerTypeAdapter(RestRouteStatus.class, new RouteStatusSerializer());
+                                                  .registerTypeAdapter(RestRouteStatus.class, new RouteStatusSerializer())
+                                                  .registerTypeAdapter(RestViewSourceSchema.class, new ViewSourceSchemaSerializer())
+                                                  .registerTypeAdapter(RestSourceSchema.class, new SourceSchemaSerializer())
+                                                  .registerTypeAdapter(RestSourceTable.class, new SourceTableSerializer())	
+                                                  .registerTypeAdapter(RestSourceColumn.class, new SourceColumnSerializer());
 
         BUILDER = temp.create();
         PRETTY_BUILDER = temp.setPrettyPrinting().create();
