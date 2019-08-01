@@ -20,47 +20,28 @@ package org.komodo.rest.relational.connection;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.core.MediaType;
-
-import org.komodo.rest.KRestEntity;
 import org.teiid.metadata.Column;
 import org.teiid.metadata.Table;
 
 /**
- * Used to build a JSON representation for a schema node
+ * Represents the configuration for a source table 
  */
-public class RestSourceTable implements KRestEntity {
-    /**
-     * Label for tables
-     */
-    public static final String COLUMNS_LABEL = "columns";
+public class RestSourceTable {
 
-    /**
-     * Label for name
+	/*
+	 * The table name
+	 */
+    private String tableName;
+    
+    /*
+     * the source path for this table
      */
-    public static final String NAME_LABEL = "tableName";
-    
-    /**
-     * Label for sourcePath
-     */
-    public static final String SOURCE_PATH_LABEL = "sourcePath";
-    
-    /**
-     * Label for fqn
-     */
-    public static final String FQN_LABEL = "fqn";
-    
-    
-    private String fqn;
-    
-    private String name;
-    
     private String sourcePath;
-    
-    private Table sourceTable;
 
-
-    private List<RestSourceColumn> columns = new ArrayList<>();
+    /*
+     * The columns for this table
+     */
+    private RestSourceColumn[] columns;
 
     /**
      * Constructor for use when de-serializing
@@ -68,33 +49,16 @@ public class RestSourceTable implements KRestEntity {
     public RestSourceTable(String sourcePath, Table table) {
         super();
         this.sourcePath = sourcePath;
-        this.sourceTable = table;
-    }
-
-//    public RestSourceTable(String name, String sourcePath, String fqn) {
-//    	this.name = name;
-//    	this.sourcePath = sourcePath;
-//    	this.fqn = fqn;
-//    }
-
-    @Override
-    public Object getXml() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean supports(MediaType mediaType) {
-        return MediaType.APPLICATION_JSON_TYPE.equals(mediaType);
+        this.tableName = table.getName();
+    	List<RestSourceColumn> tableColumns = new ArrayList<RestSourceColumn>();
+    	for( Column column : table.getColumns()) {
+    		tableColumns.add(new RestSourceColumn(column));
+    	}
+    	this.columns = tableColumns.toArray(new RestSourceColumn[0]);
     }
 
     public String getName() {
-    	return this.sourceTable.getName();
-//        return this.name;
-    }
-    
-    public String getFqn() {
-    	return this.sourceTable.getFullName();
-//        return this.fqn;
+    	return this.tableName;
     }
 
     public String getSourcePath() {
@@ -105,15 +69,7 @@ public class RestSourceTable implements KRestEntity {
         this.sourcePath = path;
     }
     
-    public void addColumn(RestSourceColumn column) {
-    	columns.add(column);
-    }
-    
     public RestSourceColumn[] getColumns() {
-    	List<RestSourceColumn> columns = new ArrayList<RestSourceColumn>();
-    	for( Column column : sourceTable.getColumns()) {
-    		columns.add(new RestSourceColumn(column));
-    	}
-    	return columns.toArray(new RestSourceColumn[0]);
+    	return this.columns;
     }
 }

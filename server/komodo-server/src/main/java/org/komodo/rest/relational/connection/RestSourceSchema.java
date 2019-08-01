@@ -20,35 +20,28 @@ package org.komodo.rest.relational.connection;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.core.MediaType;
-
-import org.komodo.rest.KRestEntity;
-import org.teiid.metadata.Column;
 import org.teiid.metadata.Schema;
 import org.teiid.metadata.Table;
 
 /**
- * Used to build a JSON representation for a source schema
+ * Represents the configuration for a source schema
  */
-public class RestSourceSchema implements KRestEntity {
+public class RestSourceSchema {
 	
-    /**
-     * Label for tables
+    /*
+     * The schema name
      */
-    public static final String TABLES_LABEL = "sourceTables";
-
-    /**
-     * Label for name
+    private String schemaName;
+    
+    /*
+     * The source path to the tables in this schema
      */
-    public static final String NAME_LABEL = "schemaName";
-    
-    private String name;
-    
     private String sourcePath;
-    
-    private Schema sourceSchema;
-    
-    private List<RestSourceTable> tables = new ArrayList<>();
+
+    /*
+     * The source table objects for this schema
+     */
+    private RestSourceTable[] sourceTables;
 
     /**
      * Constructor for use when deserializing
@@ -56,40 +49,20 @@ public class RestSourceSchema implements KRestEntity {
     public RestSourceSchema(String sourcePath, Schema schema) {
         super();
         this.sourcePath = sourcePath;
-        this.sourceSchema = schema;
-    }
-
-//    public RestSourceSchema(String name) {
-//    	this.name = name;
-//    }
-
-    @Override
-    public String getXml() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean supports(MediaType mediaType) {
-        return MediaType.APPLICATION_JSON_TYPE.equals(mediaType);
-    }
-
-    public String getName() {
-    	return this.sourceSchema.getName();
-//        return this.name;
-    }
-    
-    public RestSourceTable[] getTables() {
     	List<RestSourceTable> tables = new ArrayList<RestSourceTable>();
-    	for( String key : sourceSchema.getTables().keySet()) {
-    		Table nextTable = sourceSchema.getTables().get(key);
+    	for( String key : schema.getTables().keySet()) {
+    		Table nextTable = schema.getTables().get(key);
     		tables.add(new RestSourceTable(this.sourcePath, nextTable));
     	}
+    	this.sourceTables = tables.toArray(new RestSourceTable[0]);
+    }
 
-        return tables.toArray(new RestSourceTable[0]);
+    public String getSchemaName() {
+    	return this.schemaName;
     }
     
+    public RestSourceTable[] getSourceTables() {
+    	return this.sourceTables;
+    }
     
-//    public void addTable(RestSourceTable column) {
-//    	tables.add(column);
-//    }
 }

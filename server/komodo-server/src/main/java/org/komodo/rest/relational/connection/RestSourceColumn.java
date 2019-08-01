@@ -17,52 +17,37 @@
  */
 package org.komodo.rest.relational.connection;
 
-import javax.ws.rs.core.MediaType;
-
-import org.komodo.rest.KRestEntity;
 import org.teiid.metadata.Column;
 
 /**
- * Used to build a JSON representation for a schema node
+ * Represents the configuration for the schema table's column info 
  */
-public class RestSourceColumn implements KRestEntity {
-
-
-    /**
-     * Label for name
-     */
-    public static final String NAME_LABEL = "columName";
-    
-    /**
-     * Label for datatype
-     */
-    public static final String TYPE_LABEL = "type";
-    
-    private Column sourceColumn;
+public class RestSourceColumn {
+	
+	/*
+	 * The column name
+	 */
+	private String columnName;
+	
+	/*
+	 * The column datatype
+	 */
+	private String datatype;
 
     /**
      * Constructor for use when deserializing
      */
     public RestSourceColumn(Column column) {
         super();
-        this.sourceColumn = column;
+        this.columnName = column.getName();
+        this.datatype = column.getRuntimeType();
     }
 
-    @Override
-    public Object getXml() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean supports(MediaType mediaType) {
-        return MediaType.APPLICATION_JSON_TYPE.equals(mediaType);
-    }
-
-    public String getName() {
-    	return this.sourceColumn.getName();
+    public String getColumName() {
+    	return this.columnName;
     }
     
     public String getDatatype() {
-    	return this.sourceColumn.getRuntimeType();
+    	return this.datatype;
     }
 }

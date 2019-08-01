@@ -907,9 +907,7 @@ public class KomodoMetadataService extends KomodoService implements ServiceVdbGe
 				}
 			}
 
-			response = new RestViewSourceSchema(srcSchemas.toArray(new RestSourceSchema[0]));
-			
-			response.setName(viewEditorStateId);
+			response = new RestViewSourceSchema(viewEditorStateId, srcSchemas.toArray(new RestSourceSchema[0]));
 
 		} catch (final Exception e) {
 			if (e instanceof KomodoRestException) {
