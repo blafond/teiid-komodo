@@ -40,6 +40,7 @@ import javax.sql.DataSource;
 import javax.xml.stream.XMLStreamException;
 
 import org.komodo.KException;
+import org.komodo.datasources.ExternalSource;
 import org.komodo.metadata.DeployStatus;
 import org.komodo.metadata.Messages;
 import org.komodo.metadata.MetadataInstance;
@@ -48,8 +49,6 @@ import org.komodo.metadata.TeiidVdb;
 import org.komodo.metadata.query.QSColumn;
 import org.komodo.metadata.query.QSResult;
 import org.komodo.metadata.query.QSRow;
-import org.komodo.rest.ExternalSource;
-import org.komodo.rest.TeiidServer;
 import org.komodo.utils.ArgCheck;
 import org.komodo.utils.KLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,13 +154,13 @@ public class DefaultMetadataInstance implements MetadataInstance {
 
         QSResult result = new QSResult();
 
-        KLog.getLogger().debug("Commencing query execution: {0}", query);
+        KLog.getLogger().debug("Commencing query execution: %s", query);
 
         Connection connection = null;
         Statement statement = null;
         ResultSet rs = null;
 
-        KLog.getLogger().debug("Initialising SQL connection for vdb {0}", vdb);
+        KLog.getLogger().debug("Initialising SQL connection for vdb %s", vdb);
 
         //
         // Ensure any runtime exceptions are always caught and thrown as KExceptions
@@ -174,7 +173,7 @@ public class DefaultMetadataInstance implements MetadataInstance {
 
             statement = connection.createStatement();
 
-            KLog.getLogger().debug("Executing SQL Statement for query {0} with offset of {1} and limit of {2}",
+            KLog.getLogger().debug("Executing SQL Statement for query %s with offset of %d and limit of %d",
                                    query,
                                    offset,
                                    limit);
@@ -215,7 +214,7 @@ public class DefaultMetadataInstance implements MetadataInstance {
                 result.addRow(row);
             }
 
-            KLog.getLogger().debug("Query executed and returning {0} results", result.getRows().size());
+            KLog.getLogger().debug("Query executed and returning %d results", result.getRows().size());
 
             return result;
         } catch (Throwable t) {
@@ -557,7 +556,7 @@ public class DefaultMetadataInstance implements MetadataInstance {
     }
     
     @Override
-    public ValidatorReport validate(String vdbName, String ddl) throws KException {
+    public ValidationResult validate(String vdbName, String ddl) throws KException {
 		QueryParser parser = QueryParser.getQueryParser();
 		
 		ModelMetaData m = new ModelMetaData();
@@ -594,7 +593,7 @@ public class DefaultMetadataInstance implements MetadataInstance {
 			validator.validate(vdb, m, record, report, wrapper, mf, parser);
 		}
 		
-		return report;
+		return new ValidationResult(report, mf.getSchema());
     }
 
 }
