@@ -20,8 +20,13 @@ package org.komodo.rest;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import javax.transaction.TransactionManager;
+import javax.websocket.DeploymentException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.eclipse.lsp4j.*;
 import org.komodo.KEngine;
+import org.komodo.lsp.TeiidDdlLanguageServer;
 import org.komodo.metadata.MetadataInstance;
 import org.komodo.metadata.internal.DefaultMetadataInstance;
 import org.komodo.metadata.internal.TeiidServer;
@@ -53,6 +58,11 @@ import org.teiid.runtime.EmbeddedConfiguration;
 @ComponentScan(basePackageClasses = {WorkspaceManagerImpl.class, DefaultMetadataInstance.class, SyndesisConnectionSynchronizer.class})
 @EnableAsync
 public class KomodoAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, AsyncConfigurer {
+    private static final Log LOGGER = LogFactory.getLog(KomodoAutoConfiguration.class);
+
+    private static final String LSP_DEFAULT_HOSTNAME = "localhost"; // syndesis-dv:????
+    private static final int LSP_DEFAULT_PORT = 8025;
+    private static final String LSP_DEFAULT_CONTEXT_PATH = "/";
 
     @Value("${encrypt.key}")
     private String encryptKey;
@@ -68,6 +78,8 @@ public class KomodoAutoConfiguration implements ApplicationListener<ContextRefre
 
     @Autowired
     private KEngine kengine;
+
+    private TeiidDdlLanguageServer server;
 
     @Autowired
     private MetadataInstance metadataInstance;
@@ -87,7 +99,10 @@ public class KomodoAutoConfiguration implements ApplicationListener<ContextRefre
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
+            LOGGER.info("   ---->>>>>>>  KomodoAutoConfiguration.onApplicationEvent() kengine.start()");
             kengine.start();
+            LOGGER.info("   ---->>>>>>>  KomodoAutoConfiguration.onApplicationEvent() initialize teiidDdlLanguageServer()");
+            teiidDdlLanguageServer();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -127,6 +142,37 @@ public class KomodoAutoConfiguration implements ApplicationListener<ContextRefre
                 configurer.setTaskExecutor(getAsyncExecutor());
             }
         };
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public void teiidDdlLanguageServer() {
+
+        server = new TeiidDdlLanguageServer();
+
+        String hostname = LSP_DEFAULT_HOSTNAME;
+        int port = LSP_DEFAULT_PORT;
+        String contextPath = LSP_DEFAULT_CONTEXT_PATH;
+
+        LOGGER.info("   ---->>>  KomodoAutoConfiguration.teiidDdlLanguageServer() Host:Port = " + hostname + ":" + port);
+
+        server.startServer();
+
+        server.getTextDocumentService();
+// Server server = new Server(hostname, port, contextPath, null, MyLSPWebSocketServerConfigProvider.class);
+// Runtime.getRuntime().addShutdownHook(new Thread(server::stop, "camel-lsp-websocket-server-shutdown-hook"));
+
+// try {
+// server.connect();
+// Thread.currentThread().join();
+// } catch (InterruptedException e) {
+//
+// Thread.currentThread().interrupt();
+// } catch (DeploymentException e) {
+//
+// } finally {
+// server.stop();
+// }
     }
 
     @Override
